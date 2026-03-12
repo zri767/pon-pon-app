@@ -15,13 +15,13 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
+      - name: Install Build Dependencies
         run: |
           pip install flet yt-dlp
 
       - name: Build APK
         run: |
-          # --y тушаал нь Flutter суулгах асуултад автоматаар 'Тийм' гэж хариулна
+          # requirements.txt байгаа тохиолдолд Flet тэдгээрийг APK-д багтаадаг
           flet build apk --y --verbose
 
       - name: Upload APK
