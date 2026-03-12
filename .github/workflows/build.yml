@@ -22,7 +22,7 @@ jobs:
       - name: Build APK
         run: |
           # Алдаа зааж байсан нэмэлт тушаалыг хасаж, энгийнээр build хийнэ
-          flet build apk --verbose
+          flet build apk -y
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
