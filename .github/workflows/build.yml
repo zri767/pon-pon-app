@@ -21,12 +21,5 @@ jobs:
 
       - name: Build APK
         run: |
-          # 'flet build apk -y' гэдэг нь хамгийн чухал хэсэг. 
-          # Энэ нь Flutter суулгах асуултад автоматаар 'yes' гэж хариулна.
-          flet build apk -y
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release
-          path: build/apk/*.apk
+          
+          echo y | flet build apk
