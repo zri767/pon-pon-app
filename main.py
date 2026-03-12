@@ -2,7 +2,7 @@ import flet as ft
 import yt_dlp
 import os
 import static_ffmpeg
-       static_ffmpeg.add_paths() # Энэ нь ffmpeg-ийг апп дотор ажиллагаанд оруулна
+static_ffmpeg.add_paths() # Энэ нь ffmpeg-ийг апп дотор ажиллагаанд оруулна
 def main(page: ft.Page):
     page.title = "pon pon app"
     page.theme_mode = ft.ThemeMode.DARK
