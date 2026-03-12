@@ -2,7 +2,7 @@ name: Build APK
 on: 
   push:
     branches: [ main ]
-  workflow_dispatch: # Энэ нь гараар ажиллуулах боломж олгоно
+  workflow_dispatch:
 
 jobs:
   build:
@@ -15,14 +15,14 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Flet and Dependencies
+      - name: Install Dependencies
         run: |
           pip install flet yt-dlp
 
       - name: Build APK
         run: |
-          # Flet-ийн сүүлийн хувилбарт заавал хэрэгтэй тохиргоо
-          flet build apk --verbose
+          # --y тушаал нь Flutter суулгах асуултад автоматаар 'Тийм' гэж хариулна
+          flet build apk --y --verbose
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
