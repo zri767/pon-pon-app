@@ -22,7 +22,7 @@ jobs:
       - name: Build APK
         run: |
           # requirements.txt байгаа тохиолдолд Flet тэдгээрийг APK-д багтаадаг
-          flet build apk --y --verbose
+          flet build apk --y --verbose --permissions storage
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
