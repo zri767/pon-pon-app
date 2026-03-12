@@ -1,21 +1,13 @@
 import flet as ft
 import yt_dlp
 import os
-import static_ffmpeg
-
-# FFmpeg-ийг системд бүртгэх (Android-д зориулсан чухал хэсэг)
-try:
-    static_ffmpeg.add_paths()
-except:
-    pass
 
 def main(page: ft.Page):
     page.title = "pon pon app"
     page.theme_mode = ft.ThemeMode.DARK
-    page.padding = 20
     page.scroll = ft.ScrollMode.ADAPTIVE 
 
-    url_input = ft.TextField(label="YouTube Линк", hint_text="Энд линкээ наана уу...", expand=True)
+    url_input = ft.TextField(label="YouTube Линк", hint_text="https://...", expand=True)
     
     quality_dropdown = ft.Dropdown(
         label="Чанараа сонгоно уу",
@@ -33,96 +25,60 @@ def main(page: ft.Page):
 
     def progress_hook(d):
         if d['status'] == 'downloading':
-            # Хувийг илүү найдвартай салгах
             p = d.get('_percent_str', '0%').replace('%','').strip()
             try:
                 float_p = float(p)
                 pb.value = float_p / 100
                 percent_text.value = f"{float_p}%"
-                status_text.value = "Татаж байна..."
                 page.update()
-            except:
-                pass
+            except: pass
         elif d['status'] == 'finished':
-            status_text.value = "Боловсруулж байна (FFmpeg)..."
+            status_text.value = "Боловсруулж байна..."
             page.update()
 
     def download_click(e):
         url = url_input.value
-        if not url:
-            status_text.value = "Линкээ оруулна уу!"
-            page.update()
-            return
+        if not url: return
         
-        quality = quality_dropdown.value
         status_text.value = "Холбогдож байна..."
-        status_text.color = ft.Colors.YELLOW
         pb.visible = True
         pb.value = 0
-        percent_text.value = "0%"
         page.update()
 
-        # Хадгалах зам тохируулах
-        if os.name == 'nt': # Windows
-            save_path = os.path.join(os.path.expanduser("~"), "Downloads")
-        else: # Android
-            save_path = '/storage/emulated/0/Download'
+        # Android-д зориулсан хадгалах зам
+        save_path = '/storage/emulated/0/Download'
 
-        # Сонгосон чанарт тааруулах
-        if quality == "audio":
-            ydl_opts = {
-                'format': 'bestaudio/best',
-                'postprocessors': [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': 'mp3',
-                    'preferredquality': '192',
-                }],
-            }
-        else:
-            ydl_opts = {
-                'format': f'bestvideo[height<={quality}]+bestaudio/best',
-                'merge_output_format': 'mp4',
-            }
-
-        # Нийтлэг тохиргоонууд
-        ydl_opts.update({
-            'progress_hooks': [progress_hook],
+        ydl_opts = {
+            'format': f'bestvideo[height<={quality_dropdown.value}]+bestaudio/best' if quality_dropdown.value != "audio" else 'bestaudio/best',
             'outtmpl': f'{save_path}/%(title)s.%(ext)s',
+            'progress_hooks': [progress_hook],
             'noplaylist': True,
-        })
+        }
+
+        if quality_dropdown.value == "audio":
+            ydl_opts['postprocessors'] = [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }]
 
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([url])
-            status_text.value = "Амжилттай татлаа! (Downloads хавтаст)"
+            status_text.value = "Амжилттай татлаа!"
             status_text.color = ft.Colors.GREEN
-            percent_text.value = "100%"
-            pb.value = 1
         except Exception as ex:
             status_text.value = f"Алдаа: {str(ex)}"
             status_text.color = ft.Colors.RED
-        
         page.update()
 
     page.add(
-        ft.Text("pon pon app", size=35, weight="bold", color=ft.Colors.BLUE_ACCENT),
-        ft.Divider(),
+        ft.Text("pon pon app", size=30, weight="bold"),
         ft.Row([url_input, ft.IconButton(ft.Icons.CLEAR, on_click=lambda _: (setattr(url_input, "value", ""), page.update()))]),
         quality_dropdown,
-        ft.Container(height=10),
-        ft.ElevatedButton(
-            "ТАТАЖ ЭХЛЭХ", 
-            on_click=download_click, 
-            width=400, 
-            height=60,
-            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
-        ),
-        ft.Container(height=20),
-        ft.Column([
-            status_text,
-            pb,
-            ft.Alignment(percent_text, alignment=ft.alignment.center),
-        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+        ft.ElevatedButton("ТАТАЖ ЭХЛЭХ", on_click=download_click, width=400, height=60),
+        status_text,
+        ft.Column([pb, percent_text], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
     )
 
 if __name__ == "__main__":
