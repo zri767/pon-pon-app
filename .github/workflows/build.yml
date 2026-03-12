@@ -21,5 +21,11 @@ jobs:
 
       - name: Build APK
         run: |
-          
           echo y | flet build apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          # Энэ хэсэг маш чухал! APK хаана байгаа замыг зөв зааж өгөх ёстой.
+          path: build/apk/*.apk
