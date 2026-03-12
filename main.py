@@ -5,7 +5,9 @@ import os
 def main(page: ft.Page):
     page.title = "pon pon app"
     page.theme_mode = ft.ThemeMode.DARK
-    page.scroll = ft.ScrollMode.ADAPTIVE 
+    page.scroll = ft.ScrollMode.ADAPTIVE
+    page.window_width = 400
+    page.window_height = 700
 
     url_input = ft.TextField(label="YouTube Линк", hint_text="https://...", expand=True)
     
@@ -38,15 +40,29 @@ def main(page: ft.Page):
 
     def download_click(e):
         url = url_input.value
-        if not url: return
+        if not url:
+            status_text.value = "Линкээ оруулна уу!"
+            page.update()
+            return
         
         status_text.value = "Холбогдож байна..."
         pb.visible = True
         pb.value = 0
         page.update()
 
-        # Android-д зориулсан хадгалах зам
-        save_path = '/storage/emulated/0/Download'
+        # Android дээрх хадгалах замыг тодорхойлох
+        # Хэрэв үндсэн Download хавтас руу хандаж чадахгүй бол апп-ын доторх хавтаст хадгална
+        possible_paths = [
+            '/storage/emulated/0/Download',
+            os.path.join(os.path.expanduser("~"), "Downloads"),
+            "."
+        ]
+        
+        save_path = "."
+        for p in possible_paths:
+            if os.path.exists(p) and os.access(p, os.W_OK):
+                save_path = p
+                break
 
         ydl_opts = {
             'format': f'bestvideo[height<={quality_dropdown.value}]+bestaudio/best' if quality_dropdown.value != "audio" else 'bestaudio/best',
@@ -65,11 +81,12 @@ def main(page: ft.Page):
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([url])
-            status_text.value = "Амжилттай татлаа!"
+            status_text.value = f"Амжилттай татлаа! Зам: {save_path}"
             status_text.color = ft.Colors.GREEN
         except Exception as ex:
             status_text.value = f"Алдаа: {str(ex)}"
             status_text.color = ft.Colors.RED
+        
         page.update()
 
     page.add(
