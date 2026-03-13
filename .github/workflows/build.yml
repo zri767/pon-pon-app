@@ -1,5 +1,6 @@
 name: Build APK
-on: 
+
+on:
   push:
     branches: [ main ]
   workflow_dispatch:
@@ -17,15 +18,15 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install flet yt-dlp
+          pip install flet yt-dlp static-ffmpeg
 
       - name: Build APK
         run: |
-          echo y | flet build apk
+          # Энэ хэсэгт зөвшөөрлийг нэмж өгсөн:
+          flet build apk --permissions WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,MANAGE_EXTERNAL_STORAGE
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          # Энэ хэсэг маш чухал! APK хаана байгаа замыг зөв зааж өгөх ёстой.
           path: build/apk/*.apk
