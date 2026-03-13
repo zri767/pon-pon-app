@@ -22,9 +22,8 @@ jobs:
 
       - name: Build APK
         run: |
-          # Энэ хэсэгт зөвшөөрлийг нэмж өгсөн:
-          flet build apk --permissions WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,MANAGE_EXTERNAL_STORAGE
-
+         # Лицензийг автоматаар зөвшөөрөх 'echo y' болон 'flet build apk'
+          echo y | flet build apk
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
